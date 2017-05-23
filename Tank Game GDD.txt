@@ -1,0 +1,52 @@
+Concept
+- Pilot a tank around destroying enemy tanks. 
+
+Rules
+- Win: Destroy all enemy tanks in given amount of time.
+- Lose: Being Destroyed, running out of ammo
+- Move anywhere in the terrain (surrounded by mountains)
+- Both players start with finite health/ammo
+- Each direct hit deals damage
+- Last player standing wins
+
+Requirements
+- Tank controls 
+	- Forward/Back
+	- Swivel Left/Right
+	- Aim independent of hull (always in a valid position otherwise correct)
+	- Firing
+	- Reloading
+	- Damage tracking
+- Projectile 
+	- Hit Prediction
+	- Firing/Flight Physics
+	- Damage transfer
+- Meshes
+	- Simple tank (tracks, body, turret, barrel)
+- Textures
+	- Tank
+	- Terrain
+- VFX
+	- Muzzle Flash (Firing)
+	- Projectile Trail
+	- Projectile Impact
+	- Track Dust
+	- Tank Destruction
+	- Self Damage screen overlay
+- SFX
+	- Firing
+	- Projectile Travel
+	- Projectile Impact
+	- Tank Destruction
+	- Low Health Warning for Player
+	- Accelerate/Decelerate Forward/Backward
+	- Swivel Left/Right
+	- Turret rotation
+	- Background music for tension
+- World
+	- Terrain
+
+
+Iterative Cycle
+
+    WORLD >> TANK >> CONTROLS >> PLAYER 2 >> UI >> WORLD
