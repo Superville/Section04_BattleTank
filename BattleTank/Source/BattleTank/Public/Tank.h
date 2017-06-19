@@ -11,6 +11,16 @@ class BATTLETANK_API ATank : public APawn
 {
 	GENERATED_BODY()
 
+	UPROPERTY(EditAnywhere)
+	FVector AimTargetLocation;
+
+	UPROPERTY(EditAnywhere)
+	float AzimuthRotationSpeed;
+	UPROPERTY(EditAnywhere)
+	float ElavationRotationSpeed;
+
+	void UpdateTurretRotation(float DeltaTime);
+
 public:
 	// Sets default values for this pawn's properties
 	ATank();
@@ -27,5 +37,6 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	
+	void AimAt(FVector InAimTargetLocation);
 	
 };

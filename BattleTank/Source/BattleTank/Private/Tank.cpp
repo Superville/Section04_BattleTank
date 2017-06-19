@@ -24,6 +24,8 @@ void ATank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	UpdateTurretRotation(DeltaTime);
+
 }
 
 // Called to bind functionality to input
@@ -33,3 +35,20 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+
+void ATank::AimAt(FVector InAimTargetLocation)
+{
+	AimTargetLocation = InAimTargetLocation;
+
+	UE_LOG(LogTemp, Warning, TEXT("%s aiming at %s"), *GetName(), *InAimTargetLocation.ToString());
+}
+
+void ATank::UpdateTurretRotation(float DeltaTime)
+{
+	// Rotate Azimuth Component toward AimTarget at AzimuthRotationSpeed (ensure no overshoot)
+	
+	// Rotate Elevation Component toward AimTarget at ElavationRotationSpeed (ensure no overshoot)
+
+	// If CurrentAimRotation equals TargetAimLocation
+		// Set bAimRotationReady true
+}
