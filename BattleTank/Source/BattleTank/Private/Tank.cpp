@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BattleTank.h"
+#include "TankAimingComponent.h"
 #include "Tank.h"
 
 
@@ -10,22 +11,19 @@ ATank::ATank()
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
+	AimingComponent = CreateDefaultSubobject<UTankAimingComponent>(FName("Aiming Component"));
 }
 
 // Called when the game starts or when spawned
 void ATank::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
 void ATank::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-	UpdateTurretRotation(DeltaTime);
-
 }
 
 // Called to bind functionality to input
@@ -35,20 +33,29 @@ void ATank::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void ATank::SetBarrelReference(UTankBarrel* BarrelToSet)
+{
+	AimingComponent->SetBarrelReference(BarrelToSet);
+}
+
+void ATank::SetTurretReference(UTankTurret* TurretToSet)
+{
+	AimingComponent->SetTurretReference(TurretToSet);
+}
 
 void ATank::AimAt(FVector InAimTargetLocation)
 {
-	AimTargetLocation = InAimTargetLocation;
-
-	UE_LOG(LogTemp, Warning, TEXT("%s aiming at %s"), *GetName(), *InAimTargetLocation.ToString());
+	AimingComponent->AimAt(InAimTargetLocation, ProjectileSpeed);
 }
 
 void ATank::UpdateTurretRotation(float DeltaTime)
 {
-	// Rotate Azimuth Component toward AimTarget at AzimuthRotationSpeed (ensure no overshoot)
-	
-	// Rotate Elevation Component toward AimTarget at ElavationRotationSpeed (ensure no overshoot)
+	AimingComponent->UpdateTurretRotation(DeltaTime);
+}
 
-	// If CurrentAimRotation equals TargetAimLocation
-		// Set bAimRotationReady true
+void ATank::Fire()
+{
+	auto Time = GetWorld()->GetTimeSeconds();
+	UE_LOG(LogTemp, Warning, TEXT("%f: ATank::Fire"), Time);
+
 }

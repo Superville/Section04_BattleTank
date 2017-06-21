@@ -2,6 +2,8 @@
 
 #include "BattleTank.h"
 #include "TankPC.h"
+#include "Tank.h"
+
 
 void ATankPC::BeginPlay()
 {
