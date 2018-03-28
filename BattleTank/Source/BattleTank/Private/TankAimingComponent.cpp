@@ -73,9 +73,9 @@ void UTankAimingComponent::AimAt(FVector InAimTargetLocation, float ProjSpeed)
 		AimNormal = LaunchVelocity.GetSafeNormal();	
 
 		//test
-		DrawDebugBox(GetOwner()->GetWorld(), BarrelLoc, FVector(25, 25, 25), FColor(0, 255, 0));
+/*		DrawDebugBox(GetOwner()->GetWorld(), BarrelLoc, FVector(25, 25, 25), FColor(0, 255, 0));
 		DrawDebugBox(GetOwner()->GetWorld(), InAimTargetLocation, FVector(25, 25, 25), FColor(255, 0, 0));
-		DrawDebugLine(GetOwner()->GetWorld(), BarrelLoc, BarrelLoc + (AimNormal * 500), FColor(0, 255, 0));
+		DrawDebugLine(GetOwner()->GetWorld(), BarrelLoc, BarrelLoc + (AimNormal * 500), FColor(0, 255, 0)); */
 	}
 	else
 	{

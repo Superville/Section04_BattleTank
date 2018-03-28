@@ -8,17 +8,13 @@
 void ATankAI::BeginPlay()
 {
 	Super::BeginPlay();
-
-	ATank* ControlledTank = GetControlledTank();
-	if (ControlledTank == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ATankAI not possessing a Tank"));
-	}
 }
 
-ATank* ATankAI::GetControlledTank() const
+void ATankAI::Possess(APawn* P)
 {
-	return Cast<ATank>(GetPawn());
+	Super::Possess(P);
+
+	ControlledTank = Cast<ATank>(GetPawn());
 }
 
 ATank* ATankAI::GetPlayerTank() const
@@ -35,15 +31,35 @@ void ATankAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	ATank* CT = GetControlledTank();
 	ATank* PT = GetPlayerTank();
-	if (CT && PT)
+	if (ControlledTank && PT)
 	{
 		// Move toward player (PT)
 
 		// Aim toward the player
-		CT->AimAt(PT->GetActorLocation());
+		ControlledTank->AimAt(PT->GetActorLocation());
 
 		// Fire if ready
+		if (IsReadyToFire())
+		{
+			Fire();
+		}
+	}
+}
+
+bool ATankAI::IsReadyToFire()
+{
+	if (ControlledTank)
+	{
+		return ControlledTank->IsReadyToFire();
+	}
+	return false;
+}
+
+void ATankAI::Fire()
+{
+	if (ControlledTank)
+	{
+		ControlledTank->Fire();
 	}
 }

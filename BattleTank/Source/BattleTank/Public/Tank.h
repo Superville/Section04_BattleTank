@@ -7,22 +7,16 @@
 #include "Tank.generated.h"
 
 class UTankBarrel;
+class UTankTurret;
+class UTankTrack;
 class UTankAimingComponent;
+class ATankProjectile;
 
 UCLASS()
 class BATTLETANK_API ATank : public APawn
 {
 	GENERATED_BODY()
 
-	
-
-	void UpdateTurretRotation(float DeltaTime);
-
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
-	UTankAimingComponent* AimingComponent = nullptr;
 
 public:	
 	// Sets default values for this pawn's properties
@@ -38,18 +32,38 @@ public:
 	void SetBarrelReference(UTankBarrel* BarrelToSet);
 	UFUNCTION(BlueprintCallable, Category = Setup)
 	void SetTurretReference(UTankTurret* TurretToSet);
-	
+	UFUNCTION(BlueprintCallable, Category = Setup)
+	void SetTrackReferences(UTankTrack* Left_TrackToSet, UTankTrack* Right_TrackToSet);
+
 	void AimAt(FVector InAimTargetLocation);
+	bool IsReadyToFire();
+
 	UFUNCTION(BlueprintCallable, Category=TankCombat)
 	void Fire();
 	
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = Firing)
 	float ProjectileSpeed = 4000.f;
 
 	UPROPERTY(EditAnywhere, Category = Firing)
+	float FireRatePerSecond = 2.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = Firing)
 	float AzimuthRotationSpeed = 90.f;
 
-	UPROPERTY(EditAnywhere, Category = Firing)
+	UPROPERTY(EditDefaultsOnly, Category = Firing)
 	float ElevationRotationSpeed = 90.f;
 
+	UPROPERTY(EditDefaultsOnly, Category = Setup)
+	TSubclassOf<ATankProjectile> ProjectileClass;
+
+protected:
+	// Called when the game starts or when spawned
+	virtual void BeginPlay() override;
+
+	UTankAimingComponent* AimingComponent = nullptr;
+
+private:
+	UTankBarrel* Barrel = nullptr;
+
+	float NextFireTime = 0.f;
 };
