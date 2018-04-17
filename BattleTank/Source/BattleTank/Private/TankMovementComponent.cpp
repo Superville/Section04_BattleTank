@@ -25,3 +25,21 @@ void UTankMovementComponent::IntendRotateClockwise(float Throw)
 	TankTrack_Left->SetThrottle(Throw);
 	TankTrack_Right->SetThrottle(-Throw);
 }
+
+void UTankMovementComponent::RequestDirectMove(const FVector& MoveVelocity, bool bForceMaxSpeed)
+{
+	auto Time = GetWorld()->GetTimeSeconds();
+//	UE_LOG(LogTemp, Warning, TEXT("%f: RequestDirectMove %s - %s"), Time, *GetOwner()->GetName(), *MoveVelocity.ToString());
+
+	auto TankFwd = GetOwner()->GetActorForwardVector();
+	auto TankRt = GetOwner()->GetActorRightVector();
+	auto DesiredMoveDir = MoveVelocity.GetSafeNormal();
+
+	float MoveDotFwd = DesiredMoveDir | TankFwd;
+	IntendMoveForward(MoveDotFwd);
+
+	float MoveDotRight = FVector::DotProduct(TankRt, DesiredMoveDir);
+	auto MoveCrossFwd = FVector::CrossProduct(TankFwd, DesiredMoveDir);
+//	UE_LOG(LogTemp, Warning, TEXT("%f: RequestDirectMove %s - cross %f / dot %f"), Time, *GetOwner()->GetName(), MoveCrossFwd.Z, MoveDotRight);
+	IntendRotateClockwise(MoveCrossFwd.Z);
+}

@@ -25,4 +25,9 @@ class BATTLETANK_API ATankAI : public AAIController
 	bool IsReadyToFire();
 
 	ATank* ControlledTank = nullptr;
+
+public:
+	// How close can the AI Tank get to the player
+	UPROPERTY()
+	float AcceptanceRadius = 3000;
 };
