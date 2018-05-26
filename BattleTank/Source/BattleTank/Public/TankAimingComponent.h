@@ -25,17 +25,13 @@ class BATTLETANK_API UTankAimingComponent : public UActorComponent
 {
 	GENERATED_BODY()
 
-	FVector AimNormal;
+	FVector AimDirection;
 	bool bValidAimLocation;
 	float NextFireTime = 0.f;
 
-public:	
-	// Sets default values for this component's properties
-	UTankAimingComponent();
-
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
-	EFiringStatus FiringStatus = EFiringStatus::Unsolved;
+	EFiringStatus FiringStatus = EFiringStatus::Reloading;
 
 public:	
 	UTankBarrel * Barrel = nullptr;
@@ -59,12 +55,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Firing")
 	float ElevationRotationSpeed = 90.f;
 
+	
+	// Sets default values for this component's properties
+	UTankAimingComponent();
+
+	virtual void BeginPlay() override;
+	
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	void AimAt(FVector InAimTargetLocation);
 	void UpdateTurretRotation(float DeltaTime);
+	void UpdateFiringStatus();
 	bool IsReloading();
+	bool IsBarrelMoving();
 	bool IsReadyToFire(bool bReqLocked=false);
 	
 	UFUNCTION(BlueprintCallable, Category = "Firing")

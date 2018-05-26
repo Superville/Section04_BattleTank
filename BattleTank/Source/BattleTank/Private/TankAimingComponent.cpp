@@ -18,6 +18,13 @@ UTankAimingComponent::UTankAimingComponent()
 	// ...
 }
 
+void UTankAimingComponent::BeginPlay()
+{
+	Super::BeginPlay();
+
+	NextFireTime = GetWorld()->GetTimeSeconds() + (1.f / FireRatePerSecond);
+}
+
 void UTankAimingComponent::Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet)
 {
 	Barrel = BarrelToSet;
@@ -29,6 +36,7 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 	UpdateTurretRotation(DeltaTime);
+	UpdateFiringStatus();
 }
 
 
@@ -49,17 +57,17 @@ void UTankAimingComponent::AimAt(FVector InAimTargetLocation)
 		0,
 		ESuggestProjVelocityTraceOption::DoNotTrace))
 	{
-		AimNormal = LaunchVelocity.GetSafeNormal();
+		AimDirection = LaunchVelocity.GetSafeNormal();
 		bValidAimLocation = true;
 
 		//test
 /*		DrawDebugBox(GetOwner()->GetWorld(), BarrelLoc, FVector(25, 25, 25), FColor(0, 255, 0));
 		DrawDebugBox(GetOwner()->GetWorld(), InAimTargetLocation, FVector(25, 25, 25), FColor(255, 0, 0));
-		DrawDebugLine(GetOwner()->GetWorld(), BarrelLoc, BarrelLoc + (AimNormal * 500), FColor(0, 255, 0)); */
+		DrawDebugLine(GetOwner()->GetWorld(), BarrelLoc, BarrelLoc + (AimDirection * 500), FColor(0, 255, 0)); */
 	}
 	else
 	{
-		AimNormal = (InAimTargetLocation - BarrelLoc).GetSafeNormal();
+		AimDirection = (InAimTargetLocation - BarrelLoc).GetSafeNormal();
 		bValidAimLocation = false;
 	}
 }
@@ -68,8 +76,9 @@ void UTankAimingComponent::UpdateTurretRotation(float DeltaTime)
 {
 	if (!ensure(Barrel && Turret)) { return; }
 
-	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
-	auto AimAsRotator = AimNormal.Rotation();
+	auto BarrelFwd = Barrel->GetForwardVector();
+	auto BarrelRotator = BarrelFwd.Rotation();
+	auto AimAsRotator = AimDirection.Rotation();
 	auto DeltaRotator = (AimAsRotator - BarrelRotator).GetNormalized();
 	Turret->Rotate(DeltaRotator.Yaw);
 	if (bValidAimLocation) 
@@ -77,31 +86,23 @@ void UTankAimingComponent::UpdateTurretRotation(float DeltaTime)
 		Barrel->Elevate(DeltaRotator.Pitch);
 	}
 	
-	if (!bValidAimLocation)
-	{
-		FiringStatus = EFiringStatus::Unsolved;
-	}
-	else if (IsReloading())
-	{
-		FiringStatus = EFiringStatus::Reloading;
-	}
-	else if (FMath::Abs(DeltaRotator.Pitch) < 1 && FMath::Abs(DeltaRotator.Yaw) < 1 )
-	{
-		FiringStatus = EFiringStatus::Locked;
-	}
-	else
-	{
-		FiringStatus = EFiringStatus::Aligning;
-	}
 }
 
+bool UTankAimingComponent::IsBarrelMoving()
+{
+	if (!ensure(Barrel)) { return false; }
+
+	auto BarrelFwd = Barrel->GetForwardVector();
+	return !AimDirection.Equals(BarrelFwd, 0.01);
+}
 
 void UTankAimingComponent::Fire()
 {
-	if (!ensure(Barrel && ProjectileClass)) { return; }
-
 	if (IsReadyToFire())
 	{
+		if (!ensure(Barrel)) { return; }
+		if (!ensure(ProjectileClass)) { return; }
+
 		auto MuzzleLoc = Barrel->GetSocketLocation(FName("Muzzle"));
 		auto MuzzleRot = Barrel->GetSocketRotation(FName("Muzzle"));
 		
@@ -111,8 +112,7 @@ void UTankAimingComponent::Fire()
 		auto Proj = GetWorld()->SpawnActor<ATankProjectile>(ProjectileClass, MuzzleLoc, MuzzleRot, ASP);
 		Proj->LaunchProjectile(ProjectileSpeed);
 
-		auto CurrentTime = GetWorld()->GetTimeSeconds();
-		NextFireTime = CurrentTime + (1.f / FireRatePerSecond);
+		NextFireTime = GetWorld()->GetTimeSeconds() + (1.f / FireRatePerSecond);
 
 		//DrawDebugBox(GetWorld(), MuzzleLoc, FVector(25, 25, 25), FColor(0, 0, 255),true,10.f);
 	}
@@ -140,4 +140,24 @@ bool UTankAimingComponent::IsReadyToFire(bool bReqLocked)
 	}
 
 	return true;
+}
+
+void UTankAimingComponent::UpdateFiringStatus()
+{
+	if (!bValidAimLocation)
+	{
+		FiringStatus = EFiringStatus::Unsolved;
+	}
+	else if (IsReloading())
+	{
+		FiringStatus = EFiringStatus::Reloading;
+	}
+	else if (IsBarrelMoving())
+	{
+		FiringStatus = EFiringStatus::Aligning;
+	}
+	else
+	{
+		FiringStatus = EFiringStatus::Locked;
+	}
 }
