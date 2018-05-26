@@ -8,10 +8,14 @@ void ATankPC::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto AimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
-	if (!ensure(AimingComponent)) { return; }
+	auto P = GetPawn();
+	if (P)
+	{
+		auto AimingComponent = P->FindComponentByClass<UTankAimingComponent>();
+		if (!ensure(AimingComponent)) { return; }
 
-	FoundAimingComponent(AimingComponent);
+		FoundAimingComponent(AimingComponent);
+	}
 }
 
 void ATankPC::Tick(float DeltaTime)
@@ -23,6 +27,8 @@ void ATankPC::Tick(float DeltaTime)
 
 void ATankPC::AimTowardsCrosshair()
 {
+	if (!GetPawn()) { return; } // pawn not possessed
+
 	auto AimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
 	if (!ensure(AimingComponent)) { return; }
 
