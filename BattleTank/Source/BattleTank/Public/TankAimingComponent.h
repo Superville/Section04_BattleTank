@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Steve Superville
 
 #pragma once
 
@@ -18,6 +18,7 @@ enum class EFiringStatus : uint8
 
 class UTankBarrel;
 class UTankTurret;
+class ATankProjectile;
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class BATTLETANK_API UTankAimingComponent : public UActorComponent
@@ -26,6 +27,7 @@ class BATTLETANK_API UTankAimingComponent : public UActorComponent
 
 	FVector AimNormal;
 	bool bValidAimLocation;
+	float NextFireTime = 0.f;
 
 public:	
 	// Sets default values for this component's properties
@@ -39,12 +41,32 @@ public:
 	UTankBarrel * Barrel = nullptr;
 	UTankTurret* Turret = nullptr;
 
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
+	TSubclassOf<ATankProjectile> ProjectileClass;
+	
 	UFUNCTION(BlueprintCallable, Category = "Setup")
 	void Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet);
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+	float ProjectileSpeed = 4000.f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+	float FireRatePerSecond = 2.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Firing")
+	float AzimuthRotationSpeed = 90.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Firing")
+	float ElevationRotationSpeed = 90.f;
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void AimAt(FVector InAimTargetLocation, float ProjSpeed);
+	void AimAt(FVector InAimTargetLocation);
 	void UpdateTurretRotation(float DeltaTime);
+	bool IsReloading();
+	bool IsReadyToFire(bool bReqLocked=false);
+	
+	UFUNCTION(BlueprintCallable, Category = "Firing")
+	void Fire();
 };

@@ -6,7 +6,6 @@
 #include "GameFramework/PlayerController.h"
 #include "TankPC.generated.h"
 
-class ATank;
 class UTankAimingComponent;
 
 /**
@@ -27,20 +26,13 @@ class BATTLETANK_API ATankPC : public APlayerController
 	bool GetLookHitLocation(FVector& out_HitLocation, FVector LookDirection) const;
 
 protected:
-	UFUNCTION(BlueprintCallable, Category = "Setup")
-	ATank * GetControlledTank() const;
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Setup")
 	void FoundAimingComponent(UTankAimingComponent* AimingCompRef);
 	
 public:
-	// Sets default values for this pawn's properties
-	ATankPC();
-
 	virtual void BeginPlay() override;
 	virtual void Tick(float DeltaTime) override;
-
-	
 
 	// Set target of barrel so that a shot will hit where the crosshair shows in the world
 	void AimTowardsCrosshair();

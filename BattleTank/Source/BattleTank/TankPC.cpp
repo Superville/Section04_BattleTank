@@ -1,24 +1,14 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Steve Superville
 
 #include "BattleTank.h"
 #include "TankAimingComponent.h"
-#include "Tank.h"
 #include "TankPC.h"
-
-ATankPC::ATankPC()
-{
-
-}
 
 void ATankPC::BeginPlay()
 {
 	Super::BeginPlay();
 
-	auto ControlledTank = GetControlledTank();
-	if (!ensure(ControlledTank)) { return; }
-	
-
-	auto AimingComponent = ControlledTank->FindComponentByClass<UTankAimingComponent>();
+	auto AimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
 	if (!ensure(AimingComponent)) { return; }
 
 	FoundAimingComponent(AimingComponent);
@@ -31,21 +21,16 @@ void ATankPC::Tick(float DeltaTime)
 	AimTowardsCrosshair();
 }
 
-ATank* ATankPC::GetControlledTank() const
-{
-	return Cast<ATank>(GetPawn());
-}
-
 void ATankPC::AimTowardsCrosshair()
 {
-	ATank* CT = GetControlledTank();
-	if (!ensure(CT)) { return; }
+	auto AimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
+	if (!ensure(AimingComponent)) { return; }
 
 	FVector HitLocation;
 	if (GetSightRayHitLocation(HitLocation))
 	{
-		// Tell the tank to target that location
-		CT->AimAt(HitLocation);
+		// Aim at the hit locaiton
+		AimingComponent->AimAt(HitLocation);
 	}
 }
 
@@ -84,7 +69,7 @@ bool ATankPC::GetLookHitLocation(FVector& out_HitLocation, FVector LookDirection
 	auto TraceStart = PlayerCameraManager->GetCameraLocation();
 	FVector TraceEnd = TraceStart + (LookDirection * SightTraceDistance);
 	FCollisionQueryParams CQP;
-	CQP.AddIgnoredActor(GetControlledTank()); // ignore collision with our tank
+	CQP.AddIgnoredActor(GetPawn()); // ignore collision with our tank
 	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, CQP))
 	{
 //		UE_LOG(LogTemp, Warning, TEXT("HitLocation: %s  %s"), *HitResult.Location.ToString(), *HitResult.Actor->GetName());
