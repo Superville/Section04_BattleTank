@@ -7,21 +7,21 @@
 
 void UTankMovementComponent::Initialize(UTankTrack* LeftTrackToSet, UTankTrack* RightTrackToSet)
 {
-	if (!LeftTrackToSet || !RightTrackToSet) { return; }
+	if (!ensure(LeftTrackToSet && RightTrackToSet)) { return; }
 	TankTrack_Left = LeftTrackToSet;
 	TankTrack_Right = RightTrackToSet;
 }
 
 void UTankMovementComponent::IntendMoveForward(float Throw)
 {
-	if (!TankTrack_Left || !TankTrack_Right) { return; }
+	if (!ensure(TankTrack_Left && TankTrack_Right)) { return; }
 	TankTrack_Left->SetThrottle(Throw);
 	TankTrack_Right->SetThrottle(Throw);
 }
 
 void UTankMovementComponent::IntendRotateClockwise(float Throw)
 {
-	if (!TankTrack_Left || !TankTrack_Right) { return; }
+	if (!ensure(TankTrack_Left && TankTrack_Right)) { return; }
 	TankTrack_Left->SetThrottle(Throw);
 	TankTrack_Right->SetThrottle(-Throw);
 }

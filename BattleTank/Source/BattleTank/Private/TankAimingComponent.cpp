@@ -1,6 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BattleTank.h"
+#include "Tank.h"
 #include "TankBarrel.h"
 #include "TankTurret.h"
 #include "Kismet/GameplayStatics.h"
@@ -17,25 +18,11 @@ UTankAimingComponent::UTankAimingComponent()
 	// ...
 }
 
-void UTankAimingComponent::SetBarrelReference(UTankBarrel* BarrelToSet)
+void UTankAimingComponent::Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet)
 {
 	Barrel = BarrelToSet;
-}
-
-void UTankAimingComponent::SetTurretReference(UTankTurret* TurretToSet)
-{
 	Turret = TurretToSet;
 }
-
-// Called when the game starts
-void UTankAimingComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-	
-}
-
 
 // Called every frame
 void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -48,16 +35,9 @@ void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, F
 
 void UTankAimingComponent::AimAt(FVector InAimTargetLocation, float ProjSpeed)
 {
-	if (!Barrel || !Turret)
-	{
-		return;
-	}
+	if (!ensure(Barrel && Turret)) { return; }
 
 	auto BarrelLoc = Barrel->GetComponentLocation();
-//	auto BarrelLoc = Barrel->GetSocketLocation(TEXT("Muzzle"));
-
-
-
 	FVector LaunchVelocity;
 	if (UGameplayStatics::SuggestProjectileVelocity(
 		this,
@@ -70,7 +50,8 @@ void UTankAimingComponent::AimAt(FVector InAimTargetLocation, float ProjSpeed)
 		0,
 		ESuggestProjVelocityTraceOption::DoNotTrace))
 	{
-		AimNormal = LaunchVelocity.GetSafeNormal();	
+		AimNormal = LaunchVelocity.GetSafeNormal();
+		bValidAimLocation = true;
 
 		//test
 /*		DrawDebugBox(GetOwner()->GetWorld(), BarrelLoc, FVector(25, 25, 25), FColor(0, 255, 0));
@@ -79,16 +60,40 @@ void UTankAimingComponent::AimAt(FVector InAimTargetLocation, float ProjSpeed)
 	}
 	else
 	{
-		auto Time = GetWorld()->GetTimeSeconds();
-		UE_LOG(LogTemp, Warning, TEXT("%f: No aim solution found"), Time);
+//		auto Time = GetWorld()->GetTimeSeconds();
+//		UE_LOG(LogTemp, Warning, TEXT("%f: No aim solution found"), Time);
+
+		AimNormal = (InAimTargetLocation - BarrelLoc).GetSafeNormal();
+		bValidAimLocation = false;
 	}
 }
 
 void UTankAimingComponent::UpdateTurretRotation(float DeltaTime)
 {
+	ATank* Tank = Cast<ATank>(GetOwner());
+	if (!ensure(Tank && Barrel && Turret)) { return; }
+
 	auto BarrelRotator = Barrel->GetForwardVector().Rotation();
 	auto AimAsRotator = AimNormal.Rotation();
 	auto DeltaRotator = (AimAsRotator - BarrelRotator).GetNormalized();
 	Barrel->Elevate(DeltaRotator.Pitch);
 	Turret->Rotate(DeltaRotator.Yaw);
+
+//	UE_LOG(LogTemp, Warning, TEXT("%s"), *DeltaRotator.ToString());
+	if (!bValidAimLocation)
+	{
+		FiringStatus = EFiringStatus::Unsolved;
+	}
+	else if (Tank != nullptr && !Tank->IsReadyToFire())
+	{
+		FiringStatus = EFiringStatus::Reloading;
+	}
+	else if (FMath::Abs(DeltaRotator.Pitch) < 1 && FMath::Abs(DeltaRotator.Yaw) < 1 )
+	{
+		FiringStatus = EFiringStatus::Locked;
+	}
+	else
+	{
+		FiringStatus = EFiringStatus::Aligning;
+	}
 }

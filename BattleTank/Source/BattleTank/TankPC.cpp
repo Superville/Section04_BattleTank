@@ -1,19 +1,27 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "BattleTank.h"
-#include "TankPC.h"
+#include "TankAimingComponent.h"
 #include "Tank.h"
+#include "TankPC.h"
 
+ATankPC::ATankPC()
+{
+
+}
 
 void ATankPC::BeginPlay()
 {
 	Super::BeginPlay();
 
 	auto ControlledTank = GetControlledTank();
-	if (ControlledTank == nullptr)
-	{
-		UE_LOG(LogTemp, Error, TEXT("ATankPC not possessing a tank!"));
-	}
+	if (!ensure(ControlledTank)) { return; }
+	
+
+	auto AimingComponent = ControlledTank->FindComponentByClass<UTankAimingComponent>();
+	if (!ensure(AimingComponent)) { return; }
+
+	FoundAimingComponent(AimingComponent);
 }
 
 void ATankPC::Tick(float DeltaTime)
@@ -31,10 +39,7 @@ ATank* ATankPC::GetControlledTank() const
 void ATankPC::AimTowardsCrosshair()
 {
 	ATank* CT = GetControlledTank();
-	if (!CT)
-	{
-		return;
-	}
+	if (!ensure(CT)) { return; }
 
 	FVector HitLocation;
 	if (GetSightRayHitLocation(HitLocation))
