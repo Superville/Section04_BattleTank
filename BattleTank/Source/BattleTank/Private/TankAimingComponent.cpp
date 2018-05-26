@@ -28,7 +28,6 @@ void UTankAimingComponent::Initialize(UTankBarrel* BarrelToSet, UTankTurret* Tur
 void UTankAimingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
 	UpdateTurretRotation(DeltaTime);
 }
 
@@ -60,9 +59,6 @@ void UTankAimingComponent::AimAt(FVector InAimTargetLocation)
 	}
 	else
 	{
-//		auto Time = GetWorld()->GetTimeSeconds();
-//		UE_LOG(LogTemp, Warning, TEXT("%f: No aim solution found"), Time);
-
 		AimNormal = (InAimTargetLocation - BarrelLoc).GetSafeNormal();
 		bValidAimLocation = false;
 	}
@@ -81,8 +77,6 @@ void UTankAimingComponent::UpdateTurretRotation(float DeltaTime)
 		Barrel->Elevate(DeltaRotator.Pitch);
 	}
 	
-
-//	UE_LOG(LogTemp, Warning, TEXT("%s"), *DeltaRotator.ToString());
 	if (!bValidAimLocation)
 	{
 		FiringStatus = EFiringStatus::Unsolved;
@@ -104,35 +98,23 @@ void UTankAimingComponent::UpdateTurretRotation(float DeltaTime)
 
 void UTankAimingComponent::Fire()
 {
-	if (!ensure(Barrel)) { return; }
-
-	auto CurrentTime = GetWorld()->GetTimeSeconds();
-	//	UE_LOG(LogTemp, Warning, TEXT("%f: ATank::Fire"), CurrentTime);
+	if (!ensure(Barrel && ProjectileClass)) { return; }
 
 	if (IsReadyToFire())
 	{
-
 		auto MuzzleLoc = Barrel->GetSocketLocation(FName("Muzzle"));
 		auto MuzzleRot = Barrel->GetSocketRotation(FName("Muzzle"));
+		
 		FActorSpawnParameters ASP;
 		ASP.Instigator = Cast<APawn>(GetOwner());
 
 		auto Proj = GetWorld()->SpawnActor<ATankProjectile>(ProjectileClass, MuzzleLoc, MuzzleRot, ASP);
 		Proj->LaunchProjectile(ProjectileSpeed);
 
+		auto CurrentTime = GetWorld()->GetTimeSeconds();
 		NextFireTime = CurrentTime + (1.f / FireRatePerSecond);
 
-		/*	DrawDebugBox(GetWorld(), MuzzleLoc, FVector(25, 25, 25), FColor(0, 0, 255),true,10.f);
-
-		//test
-		if (Proj)
-		{
-		UE_LOG(LogTemp, Warning, TEXT("%f: Spawned projectile %s"), CurrentTime, *Proj->GetName());
-		}
-		else
-		{
-		UE_LOG(LogTemp, Warning, TEXT("%f: No Proj"), CurrentTime);
-		}*/
+		//DrawDebugBox(GetWorld(), MuzzleLoc, FVector(25, 25, 25), FColor(0, 0, 255),true,10.f);
 	}
 }
 
