@@ -48,13 +48,13 @@ public:
 	void Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet);
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
-	float ProjectileSpeed = 4000.f;
+	float ProjectileSpeed = 8000.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float FireRatePerSecond = 2.f;
 	
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
-	int AmmoCount = 5;
+	int32 AmmoCount = 5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Firing")
 	float AzimuthRotationSpeed = 90.f;
@@ -76,7 +76,7 @@ public:
 	void UpdateFiringStatus();
 
 	UFUNCTION(BlueprintCallable)
-	int GetAmmoLeft() const;
+	int32 GetAmmoLeft() const;
 	bool HasAmmo() const;
 
 	bool IsReloading() const;
