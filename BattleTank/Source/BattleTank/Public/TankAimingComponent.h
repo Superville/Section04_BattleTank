@@ -67,9 +67,9 @@ public:
 	void AimAt(FVector InAimTargetLocation);
 	void UpdateTurretRotation(float DeltaTime);
 	void UpdateFiringStatus();
-	bool IsReloading();
-	bool IsBarrelMoving();
-	bool IsReadyToFire(bool bReqLocked=false);
+	bool IsReloading() const;
+	bool IsBarrelMoving() const;
+	bool IsReadyToFire(bool bReqLocked=false) const;
 	
 	UFUNCTION(BlueprintCallable, Category = "Firing")
 	void Fire();

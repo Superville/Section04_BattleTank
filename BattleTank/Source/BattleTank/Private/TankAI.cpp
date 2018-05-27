@@ -8,6 +8,11 @@ void ATankAI::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (!GetPawn())
+	{
+		return;
+	}
+
 	auto AimingComponent = GetPawn()->FindComponentByClass<UTankAimingComponent>();
 	if (!ensure(AimingComponent)) { return; }
 

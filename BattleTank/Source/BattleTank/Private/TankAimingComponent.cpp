@@ -14,7 +14,6 @@ UTankAimingComponent::UTankAimingComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-	bWantsBeginPlay = true;
 }
 
 void UTankAimingComponent::BeginPlay()
@@ -88,14 +87,6 @@ void UTankAimingComponent::UpdateTurretRotation(float DeltaTime)
 	
 }
 
-bool UTankAimingComponent::IsBarrelMoving()
-{
-	if (!ensure(Barrel)) { return false; }
-
-	auto BarrelFwd = Barrel->GetForwardVector();
-	return !AimDirection.Equals(BarrelFwd, 0.01);
-}
-
 void UTankAimingComponent::Fire()
 {
 	if (IsReadyToFire())
@@ -118,7 +109,7 @@ void UTankAimingComponent::Fire()
 	}
 }
 
-bool UTankAimingComponent::IsReloading()
+bool UTankAimingComponent::IsReloading() const
 {
 	if (GetWorld()->GetTimeSeconds() < NextFireTime)
 	{
@@ -127,14 +118,22 @@ bool UTankAimingComponent::IsReloading()
 	return false;
 }
 
-bool UTankAimingComponent::IsReadyToFire(bool bReqLocked)
+bool UTankAimingComponent::IsBarrelMoving() const
+{
+	if (!ensure(Barrel)) { return false; }
+
+	auto BarrelFwd = Barrel->GetForwardVector();
+	return !AimDirection.Equals(BarrelFwd, 0.01);
+}
+
+bool UTankAimingComponent::IsReadyToFire(bool bReqLocked) const
 {
 	if(IsReloading())
 	{
 		return false;
 	}
 
-	if (bReqLocked && FiringStatus != EFiringStatus::Locked)
+	if (bReqLocked && IsBarrelMoving())
 	{
 		return false;
 	}
