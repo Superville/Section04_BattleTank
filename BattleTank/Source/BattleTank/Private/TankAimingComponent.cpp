@@ -21,6 +21,11 @@ void UTankAimingComponent::BeginPlay()
 	Super::BeginPlay();
 
 	NextFireTime = GetWorld()->GetTimeSeconds() + (1.f / FireRatePerSecond);
+
+	if (AmmoCount < 0)
+	{
+		bInfiniteAmmo_Cheat = true;
+	}
 }
 
 void UTankAimingComponent::Initialize(UTankBarrel* BarrelToSet, UTankTurret* TurretToSet)
@@ -105,7 +110,11 @@ void UTankAimingComponent::Fire()
 		{
 			Proj->LaunchProjectile(ProjectileSpeed);
 			NextFireTime = GetWorld()->GetTimeSeconds() + (1.f / FireRatePerSecond);
-			AmmoCount--;
+			
+			if (!bInfiniteAmmo_Cheat) 
+			{
+				AmmoCount--;
+			}			
 		}
 
 		//DrawDebugBox(GetWorld(), MuzzleLoc, FVector(25, 25, 25), FColor(0, 0, 255),true,10.f);
@@ -136,7 +145,7 @@ int UTankAimingComponent::GetAmmoLeft() const
 
 bool UTankAimingComponent::HasAmmo() const
 {
-	return (GetAmmoLeft() > 0);
+	return (GetAmmoLeft() > 0 || bInfiniteAmmo_Cheat);
 }
 
 bool UTankAimingComponent::IsReadyToFire(bool bReqLocked) const

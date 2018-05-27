@@ -30,6 +30,9 @@ class BATTLETANK_API UTankAimingComponent : public UActorComponent
 	bool bValidAimLocation;
 	float NextFireTime = 0.f;
 
+	//cheats
+	bool bInfiniteAmmo_Cheat;
+
 protected:
 	UPROPERTY(BlueprintReadOnly, Category = "State")
 	EFiringStatus FiringStatus = EFiringStatus::Reloading;
