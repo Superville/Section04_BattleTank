@@ -14,6 +14,7 @@ enum class EFiringStatus : uint8
 	Aligning,
 	Locked,
 	Unsolved,
+	OutOfAmmo,
 };
 
 class UTankBarrel;
@@ -48,6 +49,9 @@ public:
 
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float FireRatePerSecond = 2.f;
+	
+	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+	int AmmoCount = 5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Firing")
 	float AzimuthRotationSpeed = 90.f;
@@ -67,6 +71,11 @@ public:
 	void AimAt(FVector InAimTargetLocation);
 	void UpdateTurretRotation(float DeltaTime);
 	void UpdateFiringStatus();
+
+	UFUNCTION(BlueprintCallable)
+	int GetAmmoLeft() const;
+	bool HasAmmo() const;
+
 	bool IsReloading() const;
 	bool IsBarrelMoving() const;
 	bool IsReadyToFire(bool bReqLocked=false) const;

@@ -101,9 +101,12 @@ void UTankAimingComponent::Fire()
 		ASP.Instigator = Cast<APawn>(GetOwner());
 
 		auto Proj = GetWorld()->SpawnActor<ATankProjectile>(ProjectileClass, MuzzleLoc, MuzzleRot, ASP);
-		Proj->LaunchProjectile(ProjectileSpeed);
-
-		NextFireTime = GetWorld()->GetTimeSeconds() + (1.f / FireRatePerSecond);
+		if (Proj)
+		{
+			Proj->LaunchProjectile(ProjectileSpeed);
+			NextFireTime = GetWorld()->GetTimeSeconds() + (1.f / FireRatePerSecond);
+			AmmoCount--;
+		}
 
 		//DrawDebugBox(GetWorld(), MuzzleLoc, FVector(25, 25, 25), FColor(0, 0, 255),true,10.f);
 	}
@@ -126,8 +129,23 @@ bool UTankAimingComponent::IsBarrelMoving() const
 	return !AimDirection.Equals(BarrelFwd, 0.01);
 }
 
+int UTankAimingComponent::GetAmmoLeft() const
+{
+	return AmmoCount;
+}
+
+bool UTankAimingComponent::HasAmmo() const
+{
+	return (GetAmmoLeft() > 0);
+}
+
 bool UTankAimingComponent::IsReadyToFire(bool bReqLocked) const
 {
+	if (!HasAmmo())
+	{
+		return false;
+	}
+
 	if(IsReloading())
 	{
 		return false;
@@ -143,7 +161,11 @@ bool UTankAimingComponent::IsReadyToFire(bool bReqLocked) const
 
 void UTankAimingComponent::UpdateFiringStatus()
 {
-	if (!bValidAimLocation)
+	if (!HasAmmo())
+	{
+		FiringStatus = EFiringStatus::OutOfAmmo;
+	}
+	else if (!bValidAimLocation)
 	{
 		FiringStatus = EFiringStatus::Unsolved;
 	}
