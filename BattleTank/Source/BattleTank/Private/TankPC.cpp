@@ -91,7 +91,7 @@ bool ATankPC::GetLookHitLocation(FVector& out_HitLocation, FVector LookDirection
 	FVector TraceEnd = TraceStart + (LookDirection * SightTraceDistance);
 	FCollisionQueryParams CQP;
 	CQP.AddIgnoredActor(GetPawn()); // ignore collision with our tank
-	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Visibility, CQP))
+	if (GetWorld()->LineTraceSingleByChannel(HitResult, TraceStart, TraceEnd, ECC_Camera, CQP))
 	{
 //		UE_LOG(LogTemp, Warning, TEXT("HitLocation: %s  %s"), *HitResult.Location.ToString(), *HitResult.Actor->GetName());
 		out_HitLocation = HitResult.Location;
