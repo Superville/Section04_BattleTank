@@ -16,6 +16,7 @@ class BATTLETANK_API ATankAI : public AAIController
 {
 	GENERATED_BODY()
 
+	virtual void SetPawn(APawn* InPawn) override;
 	virtual void Tick(float DeltaTime) override;
 
 protected:
@@ -24,5 +25,9 @@ protected:
 	float AcceptanceRadius = 8000;
 
 public:
+	UFUNCTION()
+	void OnPossessedTankDeath();
+	UFUNCTION()
+	void OnPossessedAutoTurretDeath();
 	
 };

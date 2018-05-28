@@ -22,7 +22,7 @@ class BATTLETANK_API ATankProjectile : public AActor
 	URadialForceComponent* ExplosionForce = nullptr;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Cleanup")
-	float CleanupDelay = 0.1f;
+	float CleanupDelay = 100.f;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	float ProjectileDamage = 20;

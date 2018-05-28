@@ -16,7 +16,8 @@ AAutoTurret::AAutoTurret()
 void AAutoTurret::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
+	CurrentHealth = StartingHealth;	
 }
 
 // Called every frame
@@ -33,3 +34,21 @@ void AAutoTurret::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 }
 
+float AAutoTurret::GetHealthPercent() const
+{
+	return ((float)CurrentHealth / (float)StartingHealth);
+}
+
+float AAutoTurret::TakeDamage(float DamageAmount, struct FDamageEvent const& DamageEvent, class AController* EventInstigator, AActor* DamageCauser)
+{
+	int32 DamagePoints = FPlatformMath::RoundToInt(DamageAmount);
+	auto DamageToApply = FMath::Clamp(DamagePoints, 0, CurrentHealth);
+
+	CurrentHealth -= DamageToApply;
+	if (CurrentHealth <= 0)
+	{
+		OnDeath.Broadcast();
+	}
+
+	return Super::TakeDamage(DamageToApply, DamageEvent, EventInstigator, DamageCauser);
+}

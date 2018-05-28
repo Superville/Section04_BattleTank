@@ -3,6 +3,7 @@
 #include "BattleTank.h"
 #include "TankAimingComponent.h"
 #include "TankPC.h"
+#include "Tank.h"
 
 void ATankPC::BeginPlay()
 {
@@ -15,6 +16,20 @@ void ATankPC::BeginPlay()
 		if (!ensure(AimingComponent)) { return; }
 
 		FoundAimingComponent(AimingComponent);
+	}
+}
+
+void ATankPC::SetPawn(APawn* InPawn)
+{
+	Super::SetPawn(InPawn);
+
+	if (InPawn)
+	{
+		auto PossessedTank = Cast<ATank>(InPawn);
+		if (!ensure(PossessedTank)) { return; }
+
+		// subscribe to tank death event
+		PossessedTank->OnDeath.AddUniqueDynamic(this, &ATankPC::OnPossessedTankDeath);
 	}
 }
 
@@ -84,4 +99,9 @@ bool ATankPC::GetLookHitLocation(FVector& out_HitLocation, FVector LookDirection
 	}
 	out_HitLocation = FVector::ZeroVector;
 	return false;
+}
+
+void ATankPC::OnPossessedTankDeath()
+{
+	StartSpectatingOnly();
 }

@@ -25,6 +25,11 @@ class BATTLETANK_API ATankPC : public APlayerController
 	bool GetLookDirection(FVector& out_LookDirection) const;
 	bool GetLookHitLocation(FVector& out_HitLocation, FVector LookDirection) const;
 
+	virtual void SetPawn(APawn* InPawn) override;
+
+	UFUNCTION()
+	void OnPossessedTankDeath();
+
 protected:
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Setup")

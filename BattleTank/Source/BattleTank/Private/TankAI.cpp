@@ -1,8 +1,29 @@
 // Copyright Steve Superville
 
 #include "BattleTank.h"
+#include "Tank.h"
+#include "AutoTurret.h"
 #include "TankAimingComponent.h"
 #include "TankAI.h"
+
+void ATankAI::SetPawn(APawn* InPawn)
+{
+	Super::SetPawn(InPawn);
+
+	if (InPawn)
+	{
+		auto PossessedTank = Cast<ATank>(InPawn);
+		if (PossessedTank) {
+			// subscribe to tank death event
+			PossessedTank->OnDeath.AddUniqueDynamic(this, &ATankAI::OnPossessedTankDeath);
+		}
+		auto PossessedAutoTurret = Cast<AAutoTurret>(InPawn);
+		if (PossessedAutoTurret)
+		{
+			PossessedAutoTurret->OnDeath.AddUniqueDynamic(this, &ATankAI::OnPossessedAutoTurretDeath);
+		}
+	}
+}
 
 void ATankAI::Tick(float DeltaTime)
 {
@@ -19,7 +40,7 @@ void ATankAI::Tick(float DeltaTime)
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!ensure(PC)) { return; }
 	auto PlayerPawn = PC->GetPawn();
-	if (!ensure(PlayerPawn)) { return; }
+	if (!PlayerPawn) { return; }
 
 	// Move toward player (PT)
 	MoveToActor(PlayerPawn, AcceptanceRadius);
@@ -32,4 +53,15 @@ void ATankAI::Tick(float DeltaTime)
 	{
 		AimingComponent->Fire();
 	}
+}
+
+void ATankAI::OnPossessedTankDeath()
+{
+	if (!GetPawn()) { return; }
+	GetPawn()->DetachFromControllerPendingDestroy();
+}
+
+void ATankAI::OnPossessedAutoTurretDeath()
+{
+	OnPossessedTankDeath();
 }

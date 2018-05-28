@@ -53,7 +53,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Firing")
 	float FireRatePerSecond = 2.f;
 	
-	UPROPERTY(EditDefaultsOnly, Category = "Firing")
+	UPROPERTY(EditAnywhere, Category = "Firing")
 	int32 AmmoCount = 5;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Firing")
