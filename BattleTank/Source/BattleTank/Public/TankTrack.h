@@ -32,10 +32,8 @@ public:
 
 	float CurrentThrottle = 0.f;
 	
-	
-
 	// Max force per track (in Newtons)
-	UPROPERTY(EditDefaultsOnly)
+	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	float TrackMaxDrivingForce = 40000000.f;
 	
 };

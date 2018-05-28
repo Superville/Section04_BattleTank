@@ -25,6 +25,9 @@ ATankProjectile::ATankProjectile()
 	ImpactExplosion = CreateDefaultSubobject<UParticleSystemComponent>(FName("Impact Explosion"));
 	ImpactExplosion->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 	ImpactExplosion->bAutoActivate = false;
+
+	ExplosionForce = CreateDefaultSubobject<URadialForceComponent>(FName("Explosion Force"));
+	ExplosionForce->AttachToComponent(RootComponent, FAttachmentTransformRules::KeepRelativeTransform);
 }
 
 // Called when the game starts or when spawned
@@ -45,4 +48,26 @@ void ATankProjectile::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActo
 {
 	LaunchBlast->Deactivate();
 	ImpactExplosion->Activate();
+	ExplosionForce->FireImpulse();
+
+	SetRootComponent(ImpactExplosion);
+	CollisionMesh->DestroyComponent();
+	
+	UGameplayStatics::ApplyRadialDamage(
+		this,
+		ProjectileDamage,
+		GetActorLocation(),
+		ExplosionForce->Radius, // link to explosion impulse radius
+		UDamageType::StaticClass(),
+		TArray<AActor*>() // damage all actors
+	);
+
+	
+	FTimerHandle TimerHandle;
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &ATankProjectile::CleanupTimerExpired, CleanupDelay, false );
+}
+
+void ATankProjectile::CleanupTimerExpired()
+{
+	Destroy();
 }
