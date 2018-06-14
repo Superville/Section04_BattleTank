@@ -21,10 +21,15 @@ void UActorSpawnComponent::BeginPlay()
 	Super::BeginPlay();
 
 	ensure(ClassToSpawn);
-	auto NewActor = GetWorld()->SpawnActorDeferred<AActor>(ClassToSpawn, GetComponentTransform());
-	if (NewActor == nullptr) { return; }
-	NewActor->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
-	UGameplayStatics::FinishSpawningActor(NewActor, GetComponentTransform());
+	SpawnedActor = GetWorld()->SpawnActorDeferred<AActor>(ClassToSpawn, GetComponentTransform());
+	if (SpawnedActor == nullptr) { return; }
+	SpawnedActor->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
+	UGameplayStatics::FinishSpawningActor(SpawnedActor, GetComponentTransform());
+}
+
+AActor* UActorSpawnComponent::GetSpawnedActor() const
+{
+	return SpawnedActor;
 }
 
 

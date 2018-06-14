@@ -15,6 +15,7 @@ ASprungWheel::ASprungWheel()
 	
 	SpringConstraint = CreateDefaultSubobject<UPhysicsConstraintComponent>(FName("Constraint"));
 	SetRootComponent(SpringConstraint);
+	SpringConstraint->SetRelativeLocation(FVector::ZeroVector);
 
 	AxleComp = CreateDefaultSubobject<USphereComponent>(FName("Axle"));
 	AxleComp->SetupAttachment(SpringConstraint);
@@ -47,9 +48,11 @@ void ASprungWheel::SetupConstraint()
 
 	AxleComp->SetMassOverrideInKg(NAME_None, BodyRoot->GetMass() / 60.f);
 	WheelComp->SetMassOverrideInKg(NAME_None, BodyRoot->GetMass() / 60.f);
+}
 
-	//	SpringConstraint->SetLinearPositionDrive(false, false, true);
-	//	SpringConstraint->SetLinearDriveParams(400)
+void ASprungWheel::AddDrivingForce(float ForceMagnitude)
+{
+	WheelComp->AddForce(AxleComp->GetForwardVector() * ForceMagnitude);
 }
 
 // Called every frame

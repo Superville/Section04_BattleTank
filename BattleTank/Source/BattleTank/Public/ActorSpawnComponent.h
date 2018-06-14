@@ -15,6 +15,9 @@ class BATTLETANK_API UActorSpawnComponent : public USceneComponent
 	UPROPERTY(EditDefaultsOnly, Category = "Setup")
 	TSubclassOf<AActor> ClassToSpawn;
 
+	UPROPERTY(VisibleAnywhere, Category = "Setup")
+	AActor* SpawnedActor = nullptr;
+
 public:	
 	// Sets default values for this component's properties
 	UActorSpawnComponent();
@@ -27,6 +30,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	AActor* GetSpawnedActor() const;
 		
 	
 };

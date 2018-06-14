@@ -2,6 +2,8 @@
 
 #include "BattleTank.h"
 #include "TankTrack.h"
+#include "SprungWheel.h"
+#include "ActorSpawnComponent.h"
 
 UTankTrack::UTankTrack()
 {
@@ -11,40 +13,42 @@ void UTankTrack::BeginPlay()
 {
 	Super::BeginPlay();
 
-	OnComponentHit.AddDynamic(this, &UTankTrack::OnHit);
-
 }
 
-
-void UTankTrack::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+void UTankTrack::SetThrottle(float Throttle) 
 {
-	DriveTrack();
-	ApplySidewaysForce();
-	CurrentThrottle = 0.f;
+	float CurrentThrottle = FMath::Clamp<float>(Throttle, -1, 1);
+	DriveTrack(CurrentThrottle);
 }
 
-void UTankTrack::ApplySidewaysForce()
+void UTankTrack::DriveTrack(float CurrentThrottle)
 {
-	// Work out the required acceleration this frame to correct
-	auto SlippageSpeed = FVector::DotProduct(GetComponentVelocity(), GetRightVector());
-	auto DeltaTime = GetWorld()->GetDeltaSeconds();
-	auto CorrectionAcceleration = -SlippageSpeed / DeltaTime * GetRightVector();
-
-	// Calculate and apply sideways for F = m a
-	auto TankRoot = Cast<UStaticMeshComponent>(GetOwner()->GetRootComponent());
-	auto CorrectionForce = (TankRoot->GetMass() * CorrectionAcceleration) * 0.5; // half because there are two tracks
-	TankRoot->AddForce(CorrectionForce);
+	auto ForceApplied = CurrentThrottle * TrackMaxDrivingForce;
+	auto Wheels = GetWheels();
+	ensure(Wheels.Num() > 0);
+	auto ForcePerWheel = ForceApplied / Wheels.Num();
+	for (int i = 0; i < Wheels.Num(); i++ )
+	{
+		auto w = Wheels[i];
+		w->AddDrivingForce(ForcePerWheel);
+	}
 }
 
-void UTankTrack::SetThrottle(float Throttle)
+TArray<ASprungWheel*> UTankTrack::GetWheels() const
 {
-	CurrentThrottle = FMath::Clamp<float>(CurrentThrottle + Throttle, -1, 1);
-}
+	TArray<ASprungWheel*> Results;
 
-void UTankTrack::DriveTrack()
-{
-	auto ForceApplied = GetForwardVector() * CurrentThrottle * TrackMaxDrivingForce;
-	auto AppliedLocation = GetComponentLocation();
-	auto TankRoot = Cast<UPrimitiveComponent>(GetOwner()->GetRootComponent());
-	TankRoot->AddForceAtLocation(ForceApplied, AppliedLocation);
+	TArray<USceneComponent*> Children;
+	GetChildrenComponents(true, Children);
+	for (int i = 0; i < Children.Num(); i++)
+	{
+		auto SpawnComp = Cast<UActorSpawnComponent>(Children[i]);
+		if (SpawnComp == nullptr) {continue;}
+		auto WheelActor = Cast<ASprungWheel>(SpawnComp->GetSpawnedActor());
+		if (WheelActor == nullptr) {continue;}
+		
+		Results.Add(WheelActor);
+	}
+
+	return Results;
 }

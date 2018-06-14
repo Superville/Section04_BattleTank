@@ -28,18 +28,19 @@ class BATTLETANK_API ASprungWheel : public AActor
 	
 	void SetupConstraint();
 	
-public:	
-	// Sets default values for this actor's properties
-	ASprungWheel();
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 public:	
+	// Sets default values for this actor's properties
+	ASprungWheel();
+
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
+	UFUNCTION(Category = "Driving")
+	void AddDrivingForce(float ForceMagnitude);
 	
 	
 };
