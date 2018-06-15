@@ -25,8 +25,12 @@ class BATTLETANK_API ASprungWheel : public AActor
 
 	UPROPERTY(VisibleAnywhere, Category = "Components")
 	USphereComponent* WheelComp = nullptr;
+
+	UPROPERTY()
+	float ForceMagnitudeThisFrame = 0.f;
 	
 	void SetupConstraint();
+	void ApplyForce();
 	
 protected:
 	// Called when the game starts or when spawned
@@ -42,5 +46,8 @@ public:
 	UFUNCTION(Category = "Driving")
 	void AddDrivingForce(float ForceMagnitude);
 	
+	UFUNCTION()
+	void OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit);
+
 	
 };

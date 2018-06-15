@@ -32,6 +32,9 @@ void ASprungWheel::BeginPlay()
 {
 	Super::BeginPlay();
 
+	WheelComp->SetNotifyRigidBodyCollision(true);
+	WheelComp->OnComponentHit.AddDynamic(this, &ASprungWheel::OnHit);
+
 	SetupConstraint();
 }
 
@@ -52,7 +55,17 @@ void ASprungWheel::SetupConstraint()
 
 void ASprungWheel::AddDrivingForce(float ForceMagnitude)
 {
-	WheelComp->AddForce(AxleComp->GetForwardVector() * ForceMagnitude);
+	ForceMagnitudeThisFrame += ForceMagnitude;
+}
+
+void ASprungWheel::OnHit(UPrimitiveComponent* HitComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, FVector NormalImpulse, const FHitResult& Hit)
+{
+	ApplyForce();
+}
+
+void ASprungWheel::ApplyForce()
+{
+	WheelComp->AddForce(AxleComp->GetForwardVector() * ForceMagnitudeThisFrame);
 }
 
 // Called every frame
@@ -60,5 +73,9 @@ void ASprungWheel::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	if (GetWorld()->TickGroup == TG_PostPhysics)
+	{
+		ForceMagnitudeThisFrame = 0.f;
+	}
 }
 
